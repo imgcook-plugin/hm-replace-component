@@ -1,0 +1,29 @@
+{
+  "name": "@imgcook/plugin-template",
+  "version": "0.0.1",
+  "description": "plugin template",
+  "main": "index.js",
+  "scripts": {
+    "test": "nyc --reporter=text mocha test/__test__.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/imgcook-plugin/plugin-template.git"
+  },
+  "author": "",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/imgcook-plugin/plugin-template/issues"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "homepage": "https://github.com/imgcook-plugin/plugin-template#readme",
+  "devDependencies": {
+    "chai": "^4.2.0",
+    "nyc": "^14.1.1"
+  },
+  "dependencies": {
+    "@imgcook/plugin-images": "0.1.0-alpha.7"
+  }
+}

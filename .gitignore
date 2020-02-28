@@ -1,0 +1,8 @@
+.DS_Store
+node_modules
+example
+*.swp
+package-lock.json
+.nyc_output/
+yarn.lock
+demo

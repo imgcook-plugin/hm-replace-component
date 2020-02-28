@@ -1,0 +1,18 @@
+os:
+  - linux
+  - osx
+
+language: node_js
+node_js:
+  - '9'
+
+before_install:
+  - npm install -g yarn
+  - yarn config set ignore-engines true
+  - yarn global add mocha
+
+install: 
+  - yarn
+
+script:
+  - yarn test
