@@ -26,13 +26,12 @@ function loadComponentXml(componentUiConfig) {
 
   // 替换组件中的props(attr/event): :data-id="options['{{id}}']['id']" 等
   componentTemplate = componentTemplate.replace(
-    new RegExp(`:data-id="options['{{id}}']['id']"`, 'gm'), 
+    /:data-id?=\s?['"]options\[['"]\{\{id\}\}['"]\]\[['"][a-zA-Z0-9]+['"]\]['"]/g, 
       `data-id='${_.kebabCase(componentUiConfig.component)}'`);
   componentTemplate = componentTemplate.replace(/\{\{title\}\}/g, `imgcook替换组件：${componentUiConfig.component}`);
   let attrReg = /:[a-z0-9\-]+\s?=\s?['"]options\[['"]\{\{id\}\}['"]\]\[['"][a-zA-Z0-9]+['"]\]['"]/g;
   let attrNameReg = /:[a-z0-9\-]+/g;
   if (componentTemplate.match(attrReg)) {
-    console.log(JSON.stringify(componentTemplate.match(attrReg), null, 2));
     componentTemplate.match(attrReg).forEach(attr => {
       let attrName = attr.match(attrNameReg)[0].replace(':', '');
       componentTemplate = componentTemplate.replace(attr, `${attrName}="{{${_.camelCase(attrName)}}}"`)
@@ -53,7 +52,6 @@ function loadComponentXml(componentUiConfig) {
   }
   
   // 渲染模板
-  console.log(componentTemplate);
   let template = Handlebars.compile(componentTemplate);
   return template(Object.assign({title: 'imgcook替换'}, componentUiConfig.defaultProps));
 }
