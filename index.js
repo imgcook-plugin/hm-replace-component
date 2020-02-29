@@ -125,7 +125,6 @@ const pluginHandler = async options => {
     console.error('hm-replace-component error: ' + err.toString());
     console.error(err.stack);
   }
-  s
   return { data, filePath, config };
 };
 
