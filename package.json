@@ -1,7 +1,7 @@
 {
-  "name": "@imgcook/plugin-template",
+  "name": "@imgcook/hm-replace-component",
   "version": "0.0.1",
-  "description": "plugin template",
+  "description": "毫末科技生成代码后替换组件的插件",
   "main": "index.js",
   "scripts": {
     "test": "nyc --reporter=text mocha test/__test__.js"
