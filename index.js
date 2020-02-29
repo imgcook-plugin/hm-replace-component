@@ -1,5 +1,5 @@
 /**
- * @name plugin example
+ * @name plugin hm-replace-component
  * @param option: { data, filePath, config }
  * - data: module and generate code Data
  * - filePath: Pull file storage directory
@@ -8,7 +8,9 @@
 
 const pluginHandler = async options => {
   let { data, filePath, config  } = options;
-  // body...
+  console.log('data: ', data);
+  console.log('filePath: ', filePath);
+  console.log('config: ', config);
   return { data, filePath, config };
 };
 
