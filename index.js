@@ -7,8 +7,8 @@ let helpers = require('handlebars-helpers')({
   handlebars: Handlebars
 });
 
-// let projectDir = process.cwd();
-let projectDir = '/Users/lucifer/codes/gitlab.haomo/Templates/HMUniAppTemplate';
+let projectDir = process.cwd();
+// let projectDir = '/Users/lucifer/codes/gitlab.haomo/Templates/HMUniAppTemplate';
 
 function loadJson(jsonFile) {
   let contents = fs.readFileSync(jsonFile);
@@ -125,8 +125,7 @@ const pluginHandler = async options => {
     console.error('hm-replace-component error: ' + err.toString());
     console.error(err.stack);
   }
-  
-  console.log(JSON.stringify(data, null, 2))
+  s
   return { data, filePath, config };
 };
 
