@@ -1,6 +1,6 @@
 # 毫末科技imgcook组件替换插件
 
-> 官网：https://haomo-tech.com
+> 官网：[https://haomo-tech.com](https://haomo-tech.com)
 
 > 作者：胡小根
 

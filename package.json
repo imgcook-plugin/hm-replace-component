@@ -1,6 +1,6 @@
 {
   "name": "@imgcook/hm-replace-component",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "description": "毫末科技生成代码后替换组件的插件",
   "main": "index.js",
   "scripts": {
@@ -8,17 +8,17 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/imgcook-plugin/plugin-template.git"
+    "url": "git+git@github.com:imgcook-plugin/hm-replace-component.git"
   },
   "author": "",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/imgcook-plugin/plugin-template/issues"
+    "url": "https://github.com/imgcook-plugin/hm-replace-component/issues"
   },
   "publishConfig": {
     "access": "public"
   },
-  "homepage": "https://github.com/imgcook-plugin/plugin-template#readme",
+  "homepage": "https://github.com/imgcook-plugin/hm-replace-component/blob/master/README.md",
   "devDependencies": {
     "chai": "^4.2.0",
     "nyc": "^14.1.1",
