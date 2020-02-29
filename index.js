@@ -63,12 +63,12 @@ const pluginHandler = async options => {
     console.log(`加载ui config文件: ${uiConfigFile}`);
     let UiConfig = require(uiConfigFile);
 
-    // 提取模板中的 {{ 'key=van-field' }} 类似的表达式，并用表达式的模板进行替换
-    let keyPattern = /\{\{\s?['"]key=([a-z0-9\-]+)['"]\s?\}\}/g;
+    // 提取模板中的 {{ 'hm-component=van-field' }} 类似的表达式，并用表达式的模板进行替换
+    let keyPattern = /\{\{\s?['"]hm-component=([a-z0-9\-]+)['"]\s?\}\}/g;
     data.code.panelDisplay.forEach(panel => {
       let componentUiConfigMap = {};
       panel.panelValue.match(keyPattern).forEach(keyStr => {
-        let component = keyStr.replace(/\{\{\s?['"]key=/g, '').replace(/['"]\s?\}\}/g, '');
+        let component = keyStr.replace(/\{\{\s?['"]hm-component=/g, '').replace(/['"]\s?\}\}/g, '');
         let componentUiConfig = UiConfig[component];
         if (!componentUiConfig) {
           console.warn(`找不到组件 ${component} 的ui config，请核对文件 ${uiConfigFile}`);
