@@ -2,6 +2,7 @@ const fs = require("fs");
 const path = require("path");
 const Handlebars = require("handlebars");
 const _ = require('lodash');
+const prettier = require("prettier");
 
 let helpers = require('handlebars-helpers')({
   handlebars: Handlebars
@@ -119,6 +120,9 @@ const pluginHandler = async options => {
           ${importComponentStr};`)
         }
       })
+
+      // 对panelValue进行prettier
+      panel.panelValue = prettier.format(panel.panelValue, { semi: true, tabWidth: 2, parser: "babel" });
     })
   } catch(err) {
     console.error('hm-replace-component error: ' + err.toString());
