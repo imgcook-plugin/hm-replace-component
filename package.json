@@ -24,6 +24,9 @@
     "nyc": "^14.1.1"
   },
   "dependencies": {
-    "@imgcook/plugin-images": "0.1.0-alpha.7"
+    "@imgcook/plugin-images": "0.1.0-alpha.7",
+    "handlebars": "^4.7.3",
+    "handlebars-helpers": "^0.10.0",
+    "lodash": "^4.17.15"
   }
 }

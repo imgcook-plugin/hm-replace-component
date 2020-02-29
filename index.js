@@ -1,5 +1,11 @@
 const fs = require("fs");
 const path = require("path");
+const Handlebars = require("handlebars");
+const _ = require('lodash');
+
+let helpers = require('handlebars-helpers')({
+  handlebars: Handlebars
+});
 
 function loadJson(jsonFile) {
   let contents = fs.readFileSync(jsonFile);
@@ -7,14 +13,33 @@ function loadJson(jsonFile) {
 }
 
 /**
- * @TODO: 加载得到组件的 xml，用来替换生成后的代码 
+ * 加载得到组件的 xml，用来替换生成后的代码 
  */
 function loadComponentXml(componentUiConfig) {
   // 加载组件的模板
   let componentTemplateFile = path.join(projectDir, componentUiConfig.template);
   let componentTemplate = fs.readFileSync(componentTemplateFile);
 
-  // @TODO: 渲染模板
+  // 替换组件中的props(attr/event): :data-id="options['{{id}}']['id']" 等
+  componentTemplate = componentTemplate.replace(
+    new RegExp(`:data-id="options['{{id}}']['id']"`, 'gm'), 
+      `data-id='${_.kebabCase(componentUiConfig.component)}'`)
+  let attrReg = /:[a-z0-9\-]+\s?=\s?['"]options\[['"]\{\{id\}\}['"]\]\[['"][a-zA-Z0-9]+['"]\]['"]/g;
+  let attrNameReg = /:[a-z0-9\-]+/g;
+  componentTemplate.match(attrReg).forEach(attr => {
+    let attrName = attr.match(attrNameReg)[0].replace(':', '');
+    componentTemplate = componentTemplate.replace(attr, `${attrName}="{{${_.camelCase(attrName)}}}"`)
+  })
+  let eventReg = /@[a-z0-9\-]+\s?=\s?['"]options\[['"]\{\{id\}\}['"]\]\[['"][a-zA-Z0-9]+['"]\]['"]/g;
+  let eventNameReg = /@[a-z0-9\-]+/g;
+  componentTemplate.match(eventReg).forEach(event => {
+    let eventName = attr.match(eventNameReg)[0].replace('@', '');
+    componentTemplate = componentTemplate.replace(event, `@${eventName}=\`{{${_.camelCase(eventName)}}}\``);
+  })
+
+  // 渲染模板
+  let template = Handlebars.compile(componentTemplate);
+  return template(componentUiConfig.defaultProps);
 }
 
 /**
@@ -68,9 +93,13 @@ const pluginHandler = async options => {
         let importComponentStr = `import ${componentUiConfig.component} from ${componentUiConfig.importPath}`;
         // 对于vue生成的vue文件和对于jsx的文件(react)，需要引入组件
         if (panel.panelType == 'vue') {
-          // @TODO: 引入vue组件
+          // 引入vue组件
+          panel.panelValue.replace('export default', `${importComponentStr};
+          export default`)
         } else if (panel.panelType == 'jsx') {
-          // @TODO: 引入react组件
+          // 引入react组件
+          panel.panelValue.replace(`'use strict';`, `'use strict';
+          ${importComponentStr};`)
         }
       })
     })
