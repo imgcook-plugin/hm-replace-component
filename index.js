@@ -8,9 +8,14 @@
 
 const pluginHandler = async options => {
   let { data, filePath, config  } = options;
-  console.log('data: ', data);
-  console.log('filePath: ', filePath);
-  console.log('config: ', config);
+  try {
+    console.log(data);
+    console.log(filePath);
+    console.log(config);
+  } catch(err) {
+    console.error('hm-replace-component error: ' + err.toString());
+  }
+  
   return { data, filePath, config };
 };
 
