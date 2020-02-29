@@ -7,9 +7,137 @@ module.exports = {
   "code": {
     "panelDisplay": [
       {
-        "panelName": "index.jsx",
-        "panelValue": "'use strict';\n\nimport React, { Component } from 'react';\n\nimport styles from './style.js';\n\nclass Page_0 extends Component {\n  render() {\n    return (\n      <div style={styles.box}>\n        <img style={styles.bd} src={'https://img.alicdn.com/tfs/TB1nWPbqi_1gK0jSZFqXXcpaXXa-1404-788.png'} />\n        <span\n          style={styles.main}\n          onClick={e => {\n            console.log('my is text');\n          }}\n        >\n          碎花青春元素悄然走红\n        </span>\n        <span style={styles.submain}>\n          碎花元素可以张扬自我的独特思想品格、风格和生活态度，整体给人感觉一种青春叛逆不羁的自由风格。\n        </span>\n        <div style={styles.ft}>\n          <div style={styles.outer}>\n            <div style={styles.wrap}>\n              <img style={styles.icon} src={'https://img.alicdn.com/tfs/TB1RAjeqlr0gK0jSZFnXXbRRXXa-72-72.png'} />\n              <img style={styles.icon_2} src={'https://img.alicdn.com/tfs/TB1AMYdqbj1gK0jSZFuXXcrHpXa-28-28.png'} />\n            </div>\n            <span style={styles.beautifulClothesFashion}>美衣时尚</span>\n            <div style={styles.tagWrap}>\n              <span style={styles.tag}>时尚媒体</span>\n            </div>\n          </div>\n          <div style={styles.block}>\n            <img style={styles.icon_3} src={'https://img.alicdn.com/tfs/TB1T7YbqeL2gK0jSZFmXXc7iXXa-52-40.png'} />\n            <span style={styles.num}>2980</span>\n          </div>\n        </div>\n      </div>\n    );\n  }\n}\nexport default Page_0;\n",
-        "panelType": "js"
+        "panelName": "index.vue",
+        "panelValue": `
+        <template>
+        <div class="find-tutor-page">
+          <img class="hd" :src="hd" /> <img class="zhanghao" :src="zhanghao" />
+          <img class="circle" :src="circle" />
+          <div class="bd">
+            <div class="container">
+              <img class="search" :src="search" />
+              <span class="lookingForTeacher">{{ lookingForTeacher }}</span>
+            </div>
+          </div>
+          <span class="submain">{{ submain }}</span>
+          <div class="row">{{ 'hm-component=van-field' }}</div>
+          <span class="row1">{{ row1 }}</span>
+          <div class="row2">
+            <div class="group">
+              <span class="pleaseSelectGrade">{{ pleaseSelectGrade }}</span>
+              <img class="sanjiaoxing" :src="sanjiaoxing" />
+            </div>
+          </div>
+          <span class="row3">{{ row3 }}</span>
+          <div class="row4">
+            <div class="container_2">
+              <span class="enterUniversity">{{ enterUniversity }}</span>
+              <img class="sanjiaoxing_2" :src="sanjiaoxing_2" />
+            </div>
+          </div>
+          <span class="row5">{{ row5 }}</span>
+          <div class="row6">
+            <div class="tagWrap_2">
+              <span class="tag_2">{{ tag_2 }}</span>
+            </div>
+          </div>
+          <div class="ft">
+            <div class="group_2">
+              <div class="outer">
+                <img class="shopCreditLv0" :src="shopCreditLv0" />
+                <img class="dot" :src="dot" />
+              </div>
+              <span class="homePage">{{ homePage }}</span>
+            </div>
+            <div class="container_3">
+              <div class="lendWrap">
+                <img class="lend" :src="lend" />
+                <div class="welcomesvgiconWrap">
+                  <img class="welcomesvgicon" :src="welcomesvgicon" />
+                </div>
+                <img class="welcomesvgicon_2" :src="welcomesvgicon_2" />
+                <img class="picture" :src="picture" />
+              </div>
+              <span class="examination">{{ examination }}</span>
+            </div>
+            <div class="block">
+              <div class="zhaopianWrap">
+                <img class="zhaopian" :src="zhaopian" />
+                <img class="dot_2" :src="dot_2" />
+              </div>
+              <span class="courses">{{ courses }}</span>
+            </div>
+            <div class="group_3">
+              <img class="icHome" :src="icHome" />
+              <div class="lidaiconCircleMinuWrap">
+                <img class="Mefillgreen" :src="Mefillgreen" />
+                <img class="lidaiconCircleMinu" :src="lidaiconCircleMinu" />
+              </div>
+              <span class="my">{{ my }}</span>
+            </div>
+          </div>
+        </div>
+      </template>
+      <script>
+      export default {
+        data() {
+          return {
+            hd:
+              './images/img_23095_0_11.png',
+            zhanghao:
+              './images/img_23095_0_12.png',
+            circle:
+              './images/img_23095_0_13.png',
+            search:
+              './images/img_23095_0_14.png',
+            lookingForTeacher: '寻找老师',
+            submain: '寻找老师',
+            row1: '选择年级',
+            pleaseSelectGrade: '请选择年级',
+            sanjiaoxing:
+              './images/img_23095_0_15.png',
+            row3: '首选大学',
+            enterUniversity: '进入大学',
+            sanjiaoxing_2:
+              './images/img_23095_0_15.png',
+            row5: '位置区域',
+            tag_2: '请选择位置',
+            shopCreditLv0:
+              './images/img_23095_0_9.png',
+            dot:
+              './images/img_23095_0_10.png',
+            homePage: '首页',
+            lend:
+              './images/img_23095_0_0.png',
+            welcomesvgicon:
+              './images/img_23095_0_1.png',
+            welcomesvgicon_2:
+              './images/img_23095_0_2.png',
+            picture:
+              './images/img_23095_0_3.png',
+            examination: '考试',
+            zhaopian:
+              './images/img_23095_0_4.png',
+            dot_2:
+              './images/img_23095_0_5.png',
+            courses: '课程',
+            icHome:
+              './images/img_23095_0_6.png',
+            Mefillgreen:
+              './images/img_23095_0_7.png',
+            lidaiconCircleMinu:
+              './images/img_23095_0_8.png',
+            my: '我的'
+          };
+        },
+        methods: {}
+      };
+      </script>
+      <style>
+      @import './index.response.css';
+      </style>      
+        `,
+        "panelType": "vue"
       },
       {
         "panelName": "style.js",
