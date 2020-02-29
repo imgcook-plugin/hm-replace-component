@@ -52,6 +52,7 @@ function loadComponentXml(componentUiConfig) {
   }
   
   // 渲染模板
+  componentTemplate = `\n${componentTemplate}\n`; // 加换行
   let template = Handlebars.compile(componentTemplate);
   return template(Object.assign({title: 'imgcook替换'}, componentUiConfig.defaultProps));
 }
