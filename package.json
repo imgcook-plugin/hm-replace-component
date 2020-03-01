@@ -1,6 +1,6 @@
 {
   "name": "@imgcook/hm-replace-component",
-  "version": "0.0.5",
+  "version": "0.0.6",
   "description": "毫末科技生成代码后替换组件的插件",
   "main": "index.js",
   "scripts": {
