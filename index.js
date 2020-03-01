@@ -122,7 +122,15 @@ const pluginHandler = async options => {
       })
 
       // 对panelValue进行prettier
-      panel.panelValue = prettier.format(panel.panelValue, { semi: true, tabWidth: 2, parser: "babel" });
+      try {
+        if (panel.panelType == 'vue') {
+          panel.panelValue = prettier.format(panel.panelValue, { semi: true, tabWidth: 2, parser: "vue" });
+        } else if (panel.panelType == 'jsx') {
+          panel.panelValue = prettier.format(panel.panelValue, { semi: true, tabWidth: 2, parser: "babel" });
+        }
+      } catch(err) {
+        console.error(err.stack);
+      }
     })
   } catch(err) {
     console.error('hm-replace-component error: ' + err.toString());
