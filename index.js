@@ -11,6 +11,9 @@ let helpers = require("handlebars-helpers")({
 let projectDir = process.cwd();
 // let projectDir = '/Users/lucifer/codes/gitlab.haomo/Templates/HMUniAppTemplate';
 
+let replaceComponentUiConfigMap = {};   // 替代组件的UiConfigMap
+let replaceComponentCSSClassMap = {};   // 替代组件的原CSS类名(imgcook生成的类名)
+
 function loadJson(jsonFile) {
   let contents = fs.readFileSync(jsonFile);
   return (data = JSON.parse(contents));
@@ -45,7 +48,7 @@ function loadComponentXml(componentUiConfig) {
       );
     });
   } else {
-    console.log("不存在除data-id外的属性绑定");
+    console.log(`组件模板${componentUiConfig.component}不存在除data-id外的属性绑定`);
   }
 
   let eventReg = /@[a-z0-9\-]+\s?=\s?['"]options\[['"]\{\{id\}\}['"]\]\[['"][a-zA-Z0-9]+['"]\]['"]/g;
@@ -59,7 +62,7 @@ function loadComponentXml(componentUiConfig) {
       );
     });
   } else {
-    console.log("不存在事件绑定");
+    console.log(`组件模板${componentUiConfig.component}不存在事件绑定`);
   }
 
   // 渲染模板
@@ -71,15 +74,18 @@ function loadComponentXml(componentUiConfig) {
 }
 
 function replaceComponent(panel, UiConfig) {
-  let keyPattern = /\{\{\s?['"]hm-component=([a-z0-9\-]+)['"]\s?\}\}/g;
-  let componentUiConfigMap = {};
+  let keyPattern = /<div\s+class=['"]\S+['"]>\{\{\s?['"]hm-component=([a-z0-9\-]+)['"]\s?\}\}<\/div>/g;
+  
   if (!panel.panelValue.match(keyPattern)) {
     return;
   }
   panel.panelValue.match(keyPattern).forEach(keyStr => {
     let component = keyStr
-      .replace(/\{\{\s?['"]hm-component=/g, "")
-      .replace(/['"]\s?\}\}/g, "");
+      .replace(/<div\s+class=['"]\S+['"]>\{\{\s?['"]hm-component=/g, "")
+      .replace(/['"]\s?\}\}<\/div>/g, "");
+    let classReg = /<div\s+class=['"](\S+)['"]>\{\{\s?['"]hm-component=[a-z0-9\-]+['"]\s?\}\}<\/div>/g;
+    classReg.test(keyStr);
+    let componentClass = RegExp.$1;
     let componentUiConfig = UiConfig[component];
     if (!componentUiConfig) {
       console.warn(
@@ -88,7 +94,8 @@ function replaceComponent(panel, UiConfig) {
       return;
     }
 
-    componentUiConfigMap[component] = componentUiConfig;
+    replaceComponentUiConfigMap[component] = componentUiConfig;
+    replaceComponentCSSClassMap[component] = componentClass;
 
     // 渲染得到组件的xml
     let componentXml = loadComponentXml(componentUiConfig);
@@ -101,7 +108,7 @@ function replaceComponent(panel, UiConfig) {
   });
 
   // 对于存在importPath的组件，需要将生成的代码执行引入操作
-  Object.values(componentUiConfigMap).forEach(componentUiConfig => {
+  Object.values(replaceComponentUiConfigMap).forEach(componentUiConfig => {
     if (!componentUiConfig.importPath) {
       return;
     }
@@ -145,12 +152,24 @@ function replaceComponent(panel, UiConfig) {
   }
 }
 
-function replaceCss(panel, UiConfig) {
-  // @TODO: 提取生成后代码的style
+function replaceCSS(panel, UiConfig) {
+  Object.keys(replaceComponentUiConfigMap).forEach(component => {
+    try {
+      let componentClass = replaceComponentCSSClassMap[component];
+      // 提取生成后代码的style
+      // let classReg = /\.main\s?\{[^\}]+\}/g;
+      let classReg = new RegExp('\.' + componentClass + '\s?\{[^\}]+\}', 'gm');
+      let componentStyle = panel.panelValue.match(classReg)[0];
 
-  // @TODO: 读取组件style替换映射
+      // @TODO: 读取组件style，并替换映射
 
-  // @TODO: 将生成后的style，替换为目标组件对应的style。
+      // @TODO: 将生成后的style，替换为目标组件对应的style。
+
+    } catch(err) {
+      console.error('替换组件CSS报错：' + err.toString());
+      console.error(err.stack);
+    }
+  })
 }
 
 /**
@@ -176,7 +195,9 @@ const pluginHandler = async options => {
     // 提取模板中的 {{ 'hm-component=van-field' }} 类似的表达式，并用表达式的模板进行替换
     data.code.panelDisplay.forEach(panel => {
       replaceComponent(panel, UiConfig);
-      replaceCss(panel, UiConfig);
+      // if (panelType == 'css') {
+      //   replaceCSS(panel, UiConfig);
+      // }
     });
   } catch (err) {
     console.error("hm-replace-component error: " + err.toString());
