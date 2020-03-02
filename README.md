@@ -11,6 +11,7 @@
 ### 安装
 
 ```bash
+npm install -g nyc
 npm install
 ```
 
