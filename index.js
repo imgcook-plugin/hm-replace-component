@@ -73,7 +73,7 @@ function loadComponentXml(componentUiConfig) {
   );
 }
 
-function replaceComponent(panel, UiConfig) {
+function replaceVueComponent(panel, UiConfig) {
   let keyPattern = /<div\s+class=['"]\S+['"]>\{\{\s?['"]hm-component=([a-z0-9\-]+)['"]\s?\}\}<\/div>/g;
   
   if (!panel.panelValue.match(keyPattern)) {
@@ -84,6 +84,77 @@ function replaceComponent(panel, UiConfig) {
       .replace(/<div\s+class=['"]\S+['"]>\{\{\s?['"]hm-component=/g, "")
       .replace(/['"]\s?\}\}<\/div>/g, "");
     let classReg = /<div\s+class=['"](\S+)['"]>\{\{\s?['"]hm-component=[a-z0-9\-]+['"]\s?\}\}<\/div>/g;
+    classReg.test(keyStr);
+    let componentClass = RegExp.$1;
+    let componentUiConfig = UiConfig[component];
+    if (!componentUiConfig) {
+      console.warn(
+        `找不到组件 ${component} 的ui config，请核对文件 ${uiConfigFile}`
+      );
+      return;
+    }
+
+    replaceComponentUiConfigMap[component] = componentUiConfig;
+    replaceComponentCSSClassMap[component] = componentClass;
+
+    // 渲染得到组件的xml
+    let componentXml = loadComponentXml(componentUiConfig);
+
+    // 替换模板对应的xml
+    panel.panelValue = panel.panelValue.replace(
+      new RegExp(keyStr, "gm"),
+      componentXml
+    );
+  });
+
+  // 对于存在importPath的组件，需要将生成的代码执行引入操作
+  Object.values(replaceComponentUiConfigMap).forEach(componentUiConfig => {
+    if (!componentUiConfig.importPath) {
+      return;
+    }
+
+    let importComponentStr = `import ${componentUiConfig.component} from ${componentUiConfig.importPath}`;
+    // 对于vue生成的vue文件和对于jsx的文件(react)，需要引入组件
+    if (panel.panelType == "vue") {
+      // 引入vue组件
+      panel.panelValue.replace(
+        "export default",
+        `${importComponentStr};
+          export default`
+      );
+    } else if (panel.panelType == "jsx") {
+      // 引入react组件
+      panel.panelValue.replace(
+        `'use strict';`,
+        `'use strict';
+          ${importComponentStr};`
+      );
+    }
+  });
+
+  // 对panelValue进行prettier
+  try {
+    panel.panelValue = prettier.format(panel.panelValue, {
+      semi: true,
+      tabWidth: 2,
+      parser: "vue"
+    });
+  } catch (err) {
+    console.error(err.stack);
+  }
+}
+
+function replaceReactComponent(panel, UiConfig) {
+  let keyPattern = /<View\s+class=['"]\S+['"]>\{\s?['"]hm-component=([a-z0-9\-]+)['"]\s?\}<\/View>/g;
+  
+  if (!panel.panelValue.match(keyPattern)) {
+    return;
+  }
+  panel.panelValue.match(keyPattern).forEach(keyStr => {
+    let component = keyStr
+      .replace(/<View\s+class=['"]\S+['"]>\{\s?['"]hm-component=/g, "")
+      .replace(/['"]\s?\}<\/View>/g, "");
+    let classReg = /<View\s+class=['"](\S+)['"]>\{\s?['"]hm-component=[a-z0-9\-]+['"]\s?\}<\/View>/g;
     classReg.test(keyStr);
     let componentClass = RegExp.$1;
     let componentUiConfig = UiConfig[component];
@@ -149,6 +220,15 @@ function replaceComponent(panel, UiConfig) {
     }
   } catch (err) {
     console.error(err.stack);
+  }
+}
+
+function replaceComponent(panel, UiConfig) {
+  if (panel.panelType == 'vue') {
+    replaceVueComponent(panel, UiConfig);
+  } else if (panel.panelType == 'jsx') {
+    // @TODO: 替换react组件
+    // replaceReactComponent(panel, UiConfig);
   }
 }
 
