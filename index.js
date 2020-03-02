@@ -266,6 +266,12 @@ const pluginHandler = async options => {
     // 读取项目组件的列表。uni-ui.js
     console.log(process.cwd());
     let configJsonFile = `${projectDir}/.xmind2code.json`;
+
+    if (!fs.existsSync(configJsonFile)) {
+      console.log('未配置.xmind2code.json，不进行组件替换');
+      return { data, filePath, config };
+    }
+
     console.log(`读取.xmind2code.json文件: ${configJsonFile}`);
     let xmind2codeJson = loadJson(configJsonFile);
     let uiConfigFile = path.join(projectDir, xmind2codeJson.uiConfig);
