@@ -19,6 +19,63 @@ function loadJson(jsonFile) {
   return (data = JSON.parse(contents));
 }
 
+function replaceComponentAttr(componentTemplate, componentUiConfig) {
+  let attrReg = /:[a-z0-9\-]+\s*=\s*['"]options\[['"]\{\{id\}\}['"]\]\[['"][a-zA-Z0-9]+['"]\]['"]/g;
+  let attrNameReg = /:[a-z0-9\-]+/g;
+  if (componentTemplate.match(attrReg)) {
+    componentTemplate.match(attrReg).forEach(attr => {
+      let attrName = attr.match(attrNameReg)[0].replace(":", "");
+      componentTemplate = componentTemplate.replace(
+        attr,
+        `${attrName}="${componentUiConfig.defaultProps[attrName]}"`
+      );
+    });
+  } else {
+    console.log(`组件模板不存在除data-id外的属性绑定`);
+  }
+  return componentTemplate;
+}
+
+function replaceComponentEvent(componentTemplate, componentUiConfig) {
+  let eventReg = /@[a-z0-9\-]+\s*=\s*['"]options\[['"]\{\{id\}\}['"]\]\[['"][a-zA-Z0-9]+['"]\]['"]/g;
+  let eventNameReg = /@([a-z0-9\-]+)=/g;
+  if (componentTemplate.match(eventReg)) {
+    componentTemplate.match(eventReg).forEach(event => {
+      eventNameReg.test(event);
+      let eventName = RegExp.$1;
+      let eventFunc = _.camelCase('on-'+eventName);
+      componentTemplate = componentTemplate.replace(
+        event,
+        `@${eventName}="'${eventFunc}'"`
+      );
+    });
+  } else {
+    console.log(`组件模板不存在事件绑定`);
+  }
+  return componentTemplate;
+}
+
+/**
+ * 替换渲染的文字文本 \{{options['{{id}}']['text']}}
+ * @param {*} componentTemplate 
+ */
+function replaceComponentText(componentTemplate, componentUiConfig) {
+  let textReg = /\\\{\{\s*options\[['"]\{\{id\}\}['"]\]\[['"][a-zA-Z0-9]+['"]\]\s*\}\}/g;
+  let textNameReg = /\\\{\{\s*options\[['"]\{\{id\}\}['"]\]\[['"]([a-zA-Z0-9]+)['"]\]\s*\}\}/g;
+  if (componentTemplate.match(textReg)) {
+    componentTemplate.match(textReg).forEach(text => {
+      textNameReg.test(componentTemplate);
+      let textName = RegExp.$1;
+      componentTemplate = componentTemplate.replace(
+        text,
+        `${componentUiConfig.defaultProps[textName]}`
+      );
+    });
+  } else {
+  }
+  return componentTemplate;
+}
+
 /**
  * 加载得到组件的 xml，用来替换生成后的代码
  */
@@ -30,40 +87,17 @@ function loadComponentXml(componentUiConfig) {
 
   // 替换组件中的props(attr/event): :data-id="options['{{id}}']['id']" 等
   componentTemplate = componentTemplate.replace(
-    /:data-id?=\s?['"]options\[['"]\{\{id\}\}['"]\]\[['"][a-zA-Z0-9]+['"]\]['"]/g,
+    /:data-id?=\s*['"]options\[['"]\{\{id\}\}['"]\]\[['"][a-zA-Z0-9]+['"]\]['"]/g,
     `data-id='${_.kebabCase(componentUiConfig.component)}'`
   );
   componentTemplate = componentTemplate.replace(
     /\{\{title\}\}/g,
     `imgcook替换组件：${componentUiConfig.component}`
   );
-  let attrReg = /:[a-z0-9\-]+\s?=\s?['"]options\[['"]\{\{id\}\}['"]\]\[['"][a-zA-Z0-9]+['"]\]['"]/g;
-  let attrNameReg = /:[a-z0-9\-]+/g;
-  if (componentTemplate.match(attrReg)) {
-    componentTemplate.match(attrReg).forEach(attr => {
-      let attrName = attr.match(attrNameReg)[0].replace(":", "");
-      componentTemplate = componentTemplate.replace(
-        attr,
-        `${attrName}="{{${_.camelCase(attrName)}}}"`
-      );
-    });
-  } else {
-    console.log(`组件模板${componentUiConfig.component}不存在除data-id外的属性绑定`);
-  }
-
-  let eventReg = /@[a-z0-9\-]+\s?=\s?['"]options\[['"]\{\{id\}\}['"]\]\[['"][a-zA-Z0-9]+['"]\]['"]/g;
-  let eventNameReg = /@[a-z0-9\-]+/g;
-  if (componentTemplate.match(eventReg)) {
-    componentTemplate.match(eventReg).forEach(event => {
-      let eventName = attr.match(eventNameReg)[0].replace("@", "");
-      componentTemplate = componentTemplate.replace(
-        event,
-        `@${eventName}=\`{{${_.camelCase(eventName)}}}\``
-      );
-    });
-  } else {
-    console.log(`组件模板${componentUiConfig.component}不存在事件绑定`);
-  }
+  
+  componentTemplate = replaceComponentAttr(componentTemplate, componentUiConfig);
+  componentTemplate = replaceComponentEvent(componentTemplate, componentUiConfig);
+  componentTemplate = replaceComponentText(componentTemplate, componentUiConfig);
 
   // 渲染模板
   componentTemplate = `\n${componentTemplate}\n`; // 加换行
@@ -74,16 +108,23 @@ function loadComponentXml(componentUiConfig) {
 }
 
 function replaceVueComponent(panel, UiConfig) {
-  let keyPattern = /<div\s+class=['"]\S+['"]>\{\{\s?['"]hm-component=([a-z0-9\-]+)['"]\s?\}\}<\/div>/g;
+  let keyPattern = /<div\s+class=['"]\S+['"]>\{\{\s*['"]hm-component=([a-z0-9\-]+)['"]\s*\}\}<\/div>/g;
   
   if (!panel.panelValue.match(keyPattern)) {
     return;
   }
   panel.panelValue.match(keyPattern).forEach(keyStr => {
     let component = keyStr
-      .replace(/<div\s+class=['"]\S+['"]>\{\{\s?['"]hm-component=/g, "")
-      .replace(/['"]\s?\}\}<\/div>/g, "");
-    let classReg = /<div\s+class=['"](\S+)['"]>\{\{\s?['"]hm-component=[a-z0-9\-]+['"]\s?\}\}<\/div>/g;
+      .replace(/<div\s+class=['"]\S+['"]>\{\{\s*['"]hm-component=/g, "")
+      .replace(/['"]\s*\}\}<\/div>/g, "");
+
+    if (!component) {
+      console.warn(`找不到组件: ${keyStr}`);
+    }
+
+    console.log(`替换组件: ${component}`);
+
+    let classReg = /<div\s+class=['"](\S+)['"]>\{\{\s*['"]hm-component=[a-z0-9\-]+['"]\s*\}\}<\/div>/g;
     classReg.test(keyStr);
     let componentClass = RegExp.$1;
     let componentUiConfig = UiConfig[component];
@@ -93,6 +134,7 @@ function replaceVueComponent(panel, UiConfig) {
       );
       return;
     }
+    componentUiConfig.component = componentUiConfig.component || component;
 
     replaceComponentUiConfigMap[component] = componentUiConfig;
     replaceComponentCSSClassMap[component] = componentClass;
@@ -145,16 +187,16 @@ function replaceVueComponent(panel, UiConfig) {
 }
 
 function replaceReactComponent(panel, UiConfig) {
-  let keyPattern = /<View\s+class=['"]\S+['"]>\{\s?['"]hm-component=([a-z0-9\-]+)['"]\s?\}<\/View>/g;
+  let keyPattern = /<View\s+class=['"]\S+['"]>\{\s*['"]hm-component=([a-z0-9\-]+)['"]\s*\}<\/View>/g;
   
   if (!panel.panelValue.match(keyPattern)) {
     return;
   }
   panel.panelValue.match(keyPattern).forEach(keyStr => {
     let component = keyStr
-      .replace(/<View\s+class=['"]\S+['"]>\{\s?['"]hm-component=/g, "")
-      .replace(/['"]\s?\}<\/View>/g, "");
-    let classReg = /<View\s+class=['"](\S+)['"]>\{\s?['"]hm-component=[a-z0-9\-]+['"]\s?\}<\/View>/g;
+      .replace(/<View\s+class=['"]\S+['"]>\{\s*['"]hm-component=/g, "")
+      .replace(/['"]\s*\}<\/View>/g, "");
+    let classReg = /<View\s+class=['"](\S+)['"]>\{\s*['"]hm-component=[a-z0-9\-]+['"]\s*\}<\/View>/g;
     classReg.test(keyStr);
     let componentClass = RegExp.$1;
     let componentUiConfig = UiConfig[component];
@@ -237,8 +279,8 @@ function replaceCSS(panel, UiConfig) {
     try {
       let componentClass = replaceComponentCSSClassMap[component];
       // 提取生成后代码的style
-      // let classReg = /\.main\s?\{[^\}]+\}/g;
-      let classReg = new RegExp('\.' + componentClass + '\s?\{[^\}]+\}', 'gm');
+      // let classReg = /\.main\s*\{[^\}]+\}/g;
+      let classReg = new RegExp('\.' + componentClass + '\s*\{[^\}]+\}', 'gm');
       let componentStyle = panel.panelValue.match(classReg)[0];
 
       // @TODO: 读取组件style，并替换映射
